@@ -14,7 +14,7 @@ if (isset($_GET['id'])) {
   echo '<table>
           <tr>
            <% @columns.each do |c| %>
-             <td><%= c[:column_name] %></td>
+             <td><%= c["column_name"] %></td>
            <% end %>
           </tr>';
 
@@ -22,7 +22,7 @@ if (isset($_GET['id'])) {
   {
       echo '<tr>
               <% @columns.each do |c| %>
-                <td>'.$array['<%= c[:column_name] %>'].'</td>
+                <td>'.$array['<%= c["column_name"] %>'].'</td>
               <% end %>
             </tr>';
   }
