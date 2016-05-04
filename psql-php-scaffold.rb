@@ -45,7 +45,7 @@ puts "Print schema..."
 puts schema.inspect
 
 puts "Render views..."
-@templates = %w{new create edit update index destroy}
+@templates = %w{new create edit update index show destroy}
 def read_template(filename)
   File.read("./templates/#{filename}.php.erb")
 end
