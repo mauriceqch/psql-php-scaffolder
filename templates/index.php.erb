@@ -1,0 +1,30 @@
+<?php 
+
+require_once 'db-connect.php';
+
+$result = pg_query($dbconn, "SELECT * FROM <%= @table_name %>");
+if (!$result) {
+    echo "An error occurred.\n";
+    exit;
+}
+
+$arr = pg_fetch_all($result);
+
+echo '<table>
+        <tr>
+         <% @columns.each do |c| %>
+           <td><%= c["column_name"] %></td>
+         <% end %>
+        </tr>';
+
+foreach($arr as $array)
+{
+    echo '<tr>
+            <% @columns.each do |c| %>
+              <td>'.$array['<%= c["column_name"] %>'].'</td>
+            <% end %>
+          </tr>';
+}
+echo '</table>';
+pg_close($dbconn);
+?>

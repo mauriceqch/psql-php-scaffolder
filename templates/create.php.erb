@@ -1,0 +1,16 @@
+<?php 
+if($_SERVER['REQUEST_METHOD'] === 'POST') {
+  require_once 'db-connect.php';
+  $allowed = [<%= (@columns.map {|c| "'#{c["column_name"]}'"}).join(',') %>];
+  $object = array_intersect_key($_POST, array_flip($allowed));
+  $res = pg_insert($dbconn, '<%= @table_name %>' , $object);
+  if ($res) {
+    echo "Inserted in <%= @table_name %> successfully<br />";
+  } else {
+    echo pg_last_error($dbconn) . " <br />";
+  }
+
+  // Close the connection
+  pg_close($dbconn);
+}
+?>

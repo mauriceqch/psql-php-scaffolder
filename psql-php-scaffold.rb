@@ -32,7 +32,7 @@ def get_columns(table)
   # "date"
   # "character varying"
   # "text"
-  columns.map {|c| ["column_name": c["column_name"], "data_type": c["data_type"]]}
+  columns.map {|c| {"column_name" => c["column_name"], "data_type" => c["data_type"]}}
 end
 schema = {}
 tables.each do |t|
@@ -50,17 +50,23 @@ def read_template(filename)
   File.read("./templates/#{filename}.php.erb")
 end
 def render(table_name, columns)
+  @table_name = table_name
+  @columns = columns
   @templates.each do |v|
     @partial = ERB.new(read_template(v)).result()
     @view = ERB.new(read_template('layout')).result()
-    folder = "./output/#{table_name}"
-    filename = "#{folder}/#{v}.php.erb"
+    folder = "./output"
+    filename = "#{folder}/#{table_name}_#{v}.php"
     puts "Render #{filename}"
     FileUtils.mkdir_p folder
     File.write(filename, @view)
   end
 end
+FileUtils.rm_rf('./output', secure: true)
 schema.each do |table_name, columns|
   puts table_name, columns
   render(table_name, columns)
 end
+
+puts "Copying db-connect.php"
+FileUtils.cp 'templates/db-connect.php', 'output/db-connect.php'

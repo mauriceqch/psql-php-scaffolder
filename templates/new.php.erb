@@ -1,0 +1,6 @@
+<form action="<%= @table_name %>_create.php" method="POST">
+<% @columns.each do |c| %>
+  <%= c["column_name"] %>: <input type="text" name="<%= c["column_name"] %>"><br>
+<% end %>
+<input type="submit">
+</form>
