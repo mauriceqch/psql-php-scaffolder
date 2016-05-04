@@ -12,3 +12,6 @@
 
 # Ignore swp files
 *.swp
+
+# Ignore output folder
+/output

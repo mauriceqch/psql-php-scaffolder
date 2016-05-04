@@ -1,5 +1,7 @@
 require 'yaml'
 require 'pg'
+require 'fileutils'
+require 'erb'
 
 db_config = YAML.load_file('config/database.yml')
 puts "Load config..."
@@ -22,7 +24,15 @@ def get_columns(table)
                        FROM information_schema.columns
                        WHERE table_schema = 'public'
                        AND table_name   = '#{table}'")
-  columns.map {|c| c["column_name"]}
+  # Supported data types :
+  # "integer"
+  # "boolean"
+  # "double precision"
+  # "timestamp without time zone"
+  # "date"
+  # "character varying"
+  # "text"
+  columns.map {|c| ["column_name": c["column_name"], "data_type": c["data_type"]]}
 end
 schema = {}
 tables.each do |t|
@@ -34,3 +44,23 @@ end
 puts "Print schema..."
 puts schema.inspect
 
+puts "Render views..."
+@templates = %w{new create edit update index destroy}
+def read_template(filename)
+  File.read("./templates/#{filename}.php.erb")
+end
+def render(table_name, columns)
+  @templates.each do |v|
+    @partial = ERB.new(read_template(v)).result()
+    @view = ERB.new(read_template('layout')).result()
+    folder = "./output/#{table_name}"
+    filename = "#{folder}/#{v}.php.erb"
+    puts "Render #{filename}"
+    FileUtils.mkdir_p folder
+    File.write(filename, @view)
+  end
+end
+schema.each do |table_name, columns|
+  puts table_name, columns
+  render(table_name, columns)
+end
