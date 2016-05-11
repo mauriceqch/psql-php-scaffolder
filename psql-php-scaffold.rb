@@ -8,15 +8,16 @@ puts "Load config..."
 puts db_config.inspect
 
 puts "Set connection..."
-@conn = PG.connect({dbname: ARGV[0]}.merge db_config)
+@dbname = ARGV[0]
+@conn = PG.connect({dbname: @dbname}.merge db_config)
 
 puts "Print tables..."
 def get_tables()
   tables = @conn.exec("SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'")
   (tables.select {|v| v["tablename"] != "schema_migrations"}).map {|t| t["tablename"]}
 end
-tables = get_tables
-puts tables.inspect
+@tables = get_tables
+puts @tables.inspect
 
 puts "Print tables columns..."
 @psql_html_data_types = {}
@@ -44,7 +45,7 @@ def get_columns(table)
   columns.map {|c| {"column_name" => c["column_name"], "data_type" => @psql_html_data_types[c["data_type"]]}}
 end
 schema = {}
-tables.each do |t|
+@tables.each do |t|
   columns = get_columns(t)
   puts columns.inspect
   schema[t] = columns
@@ -77,5 +78,12 @@ schema.each do |table_name, columns|
   render(table_name, columns)
 end
 
-puts "Copying db-connect.php"
-FileUtils.cp 'templates/db-connect.php', 'output/db-connect.php'
+others = %w(menu db-connect)
+others.each do |o|
+  puts "Rendering #{o}.php.erb"
+  @view = ERB.new(read_template(o)).result()
+  folder = "./output"
+  filename = "#{folder}/#{o}.php"
+  FileUtils.mkdir_p folder
+  File.write(filename, @view)
+end
