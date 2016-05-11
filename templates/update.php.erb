@@ -2,12 +2,12 @@
   if($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'db-connect.php';
     $allowed = [<%= ((@columns.select {|v| v["column_name"] != "id"}).map {|c| "'#{c["column_name"]}'"}).join(',') %>];
-    $object = array_filter(array_intersect_key($_POST, array_flip($allowed)));
-    $res = pg_insert($dbconn, '<%= @table_name %>' , $object, array("id" => $_POST['id']), function ($value) {
+    $object = array_filter(array_intersect_key($_POST, array_flip($allowed)), function ($value) {
   return ($value || is_numeric($value));
 });
+    $res = pg_update($dbconn, '<%= @table_name %>' , $object, array("id" => $_POST['id']));
   if ($res) {
-    echo "Deleted in <%= @table_name %> successfully<br />";
+    echo "Updated in <%= @table_name %> successfully<br />";
   } else {
     echo pg_last_error($dbconn) . " <br />";
   }

@@ -56,6 +56,7 @@ puts schema.inspect
 
 puts "Render views..."
 @templates = %w{new create edit update index show destroy}
+@partials = %w(form)
 def read_template(filename)
   File.read("./templates/#{filename}.php.erb")
 end
@@ -70,6 +71,14 @@ def render(table_name, columns)
     puts "Render #{filename}"
     FileUtils.mkdir_p folder
     File.write(filename, @view)
+  end
+  @partials.each do |v|
+    @partial = ERB.new(read_template(v)).result()
+    folder = "./output"
+    filename = "#{folder}/#{table_name}_#{v}.php"
+    puts "Render #{filename}"
+    FileUtils.mkdir_p folder
+    File.write(filename, @partial)
   end
 end
 FileUtils.rm_rf('./output', secure: true)

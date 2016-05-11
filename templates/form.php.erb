@@ -1,0 +1,33 @@
+<?php
+if (isset($_GET['id'])) {
+  require_once 'db-connect.php';
+
+  $result = pg_query($dbconn, "SELECT * FROM <%= @table_name %> WHERE id=".$_GET['id'].";");
+  if (!$result) {
+      echo "An error occurred.\n";
+      exit;
+  }
+
+  $arr = pg_fetch_all($result);
+
+  foreach($arr as $array)
+  {
+    <% @columns.each do |c| %>
+      $<%= c["column_name"] %> = $array['<%= c["column_name"] %>'];
+    <% end %>
+  }
+  pg_close($dbconn);
+  echo "<input type='hidden' name='id' value='". $_GET['id'] ."'>";
+  echo '<a href="./<%= @table_name %>_destroy.php?id='. $_GET['id'] . '">Supprimer</a>';
+}
+echo <<<END
+<fieldset>
+<legend>Creation de <%= @table_name %></legend>
+<% @columns.each do |c| %>
+  <% if c["column_name"] != "id" %>
+    <%= c["column_name"] %>: <input type='<%= c["data_type"] %>' name='<%= c["column_name"] %>' value='$<%= c["column_name"] %>'><br>
+  <% end %>
+<% end %>
+</fieldset>
+END;
+?>
