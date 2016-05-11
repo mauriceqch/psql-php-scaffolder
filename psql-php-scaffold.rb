@@ -13,12 +13,21 @@ puts "Set connection..."
 puts "Print tables..."
 def get_tables()
   tables = @conn.exec("SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'")
-  tables.map {|t| t["tablename"]}
+  (tables.select {|v| v["tablename"] != "schema_migrations"}).map {|t| t["tablename"]}
 end
 tables = get_tables
 puts tables.inspect
 
 puts "Print tables columns..."
+@psql_html_data_types = {}
+@psql_html_data_types["integer"] = "text"
+@psql_html_data_types["boolean"] = "checkbox"
+@psql_html_data_types["double precision"] = "text"
+@psql_html_data_types["timestamp without time zone"] = "datetime-local"
+@psql_html_data_types["date"] = "date"
+@psql_html_data_types["character varying"] = "text"
+@psql_html_data_types["text"] = "text"
+ 
 def get_columns(table)
   columns = @conn.exec("SELECT *
                        FROM information_schema.columns
@@ -32,7 +41,7 @@ def get_columns(table)
   # "date"
   # "character varying"
   # "text"
-  columns.map {|c| {"column_name" => c["column_name"], "data_type" => c["data_type"]}}
+  columns.map {|c| {"column_name" => c["column_name"], "data_type" => @psql_html_data_types[c["data_type"]]}}
 end
 schema = {}
 tables.each do |t|

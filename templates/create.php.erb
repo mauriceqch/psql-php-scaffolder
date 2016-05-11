@@ -1,8 +1,10 @@
 <?php 
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
   require_once 'db-connect.php';
-  $allowed = [<%= (@columns.map {|c| "'#{c["column_name"]}'"}).join(',') %>];
-  $object = array_intersect_key($_POST, array_flip($allowed));
+  $allowed = [<%= ((@columns.select {|v| v["column_name"] != "id"}).map {|c| "'#{c["column_name"]}'"}).join(',') %>];
+  $object = array_filter(array_intersect_key($_POST, array_flip($allowed)), function ($value) {
+  return ($value || is_numeric($value));
+});
   $res = pg_insert($dbconn, '<%= @table_name %>' , $object);
   if ($res) {
     echo "Inserted in <%= @table_name %> successfully<br />";
