@@ -48,6 +48,9 @@ def get_columns(table)
                               WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name='#{table}';")
   foreign_keys = foreign_keys.map {|fk| {fk["column_name"] => fk.slice("foreign_table_name", "foreign_column_name") }}
   foreign_keys = foreign_keys.reduce({}, :merge)
+  foreign_keys.each do |k,v|
+    @reverse_foreign_keys[v["foreign_table_name"]].push({"referenced_column_name" => v["foreign_column_name"], "referencing_table_name" => table, "referencing_column_name" => k})
+  end
   # Supported data types :
   # "integer"
   # "boolean"
@@ -63,11 +66,16 @@ def get_columns(table)
   result
 end
 schema = {}
+@reverse_foreign_keys = {}
+@tables.each do |t|
+  @reverse_foreign_keys[t] = []
+end
 @tables.each do |t|
   columns = get_columns(t)
   puts columns.inspect
   schema[t] = columns
 end
+puts @reverse_foreign_keys.inspect
 
 puts "Print schema..."
 puts schema.inspect
@@ -81,6 +89,7 @@ end
 def render(table_name, columns)
   @table_name = table_name
   @columns = columns
+  @local_reverse_fks = @reverse_foreign_keys[table_name]
   @templates.each do |v|
     @partial = ERB.new(read_template(v)).result()
     @view = ERB.new(read_template('layout')).result()

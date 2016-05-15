@@ -15,6 +15,9 @@ echo '<table>
          <% @columns.each do |c| %>
            <th><%= c["column_name"] %></th>
          <% end %>';
+<% @local_reverse_fks.each do |rfk| %>
+echo '<th><%= rfk['referencing_table_name'] %></th>';
+<% end %>
 
 echo   '<th></th>
         <th></th>
@@ -36,6 +39,18 @@ foreach($arr as $array)
                 <td>'.$array['<%= c["column_name"] %>'].'</td>
               <% end %>
             <% end %>
+<% @local_reverse_fks.each do |rfk| %>
+<td>';
+  $referencing_<%= rfk["referencing_table_name"] %>_ids = pg_fetch_all(pg_query($dbconn, "SELECT id FROM <%= rfk["referencing_table_name"] %> WHERE <%= rfk["referencing_table_name"] + "." + rfk["referencing_column_name"] %> = ".$array['<%= rfk["referenced_column_name"] %>'].";"));
+$disableconn = true;
+foreach($referencing_<%= rfk["referencing_table_name"] %>_ids as $o) 
+{
+  $_GET['id'] = $o['id'];
+  include('<%= rfk["referencing_table_name"] %>_show.php');
+}
+unset($disableconn);
+echo '</td>
+<% end %>
             <td><a href="<%= @table_name %>_edit.php?id='.$array['id'].'">Modifier</a>
             <td><a href="<%= @table_name %>_destroy.php?id='.$array['id'].'">Supprimer</a>
           </tr>';
