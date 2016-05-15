@@ -1,6 +1,6 @@
 <?php
+require_once 'db-connect.php';
 if (isset($_GET['id'])) {
-  require_once 'db-connect.php';
 
   $result = pg_query($dbconn, "SELECT * FROM <%= @table_name %> WHERE id=".$_GET['id'].";");
   if (!$result) {
@@ -16,18 +16,39 @@ if (isset($_GET['id'])) {
       $<%= c["column_name"] %> = $array['<%= c["column_name"] %>'];
     <% end %>
   }
-  pg_close($dbconn);
   echo "<input type='hidden' name='id' value='". $_GET['id'] ."'>";
   echo '<a href="./<%= @table_name %>_destroy.php?id='. $_GET['id'] . '">Supprimer</a>';
 }
+<% @columns.each do |c| %>
+  <% if c["foreign_key"] %>
+    $<%= c["column_name"] %>_set = pg_fetch_all(pg_query($dbconn, "SELECT * FROM <%= c["foreign_key"]["foreign_table_name"] %>;"));
+  <% end %>
+<% end %>
+ 
 echo <<<END
 <fieldset>
 <legend>Creation de <%= @table_name %></legend>
 <% @columns.each do |c| %>
   <% if c["column_name"] != "id" %>
-    <%= c["column_name"] %>: <input type='<%= c["data_type"] %>' name='<%= c["column_name"] %>' value='$<%= c["column_name"] %>'><br>
+    <% if c["foreign_key"] %>
+      <%= c["column_name"] %>: 
+<select name='<%= c["column_name"] %>'>
+END;
+foreach($<%= c["column_name"] %>_set as $element)
+{
+  echo "<option value=" . $element['id'] . ">" . $element['id'] . "</option>";
+}
+echo <<<END
+</select>
+<br>
+
+    <% else %>
+      <%= c["column_name"] %>: <input type='<%= c["data_type"] %>' name='<%= c["column_name"] %>' value='$<%= c["column_name"] %>'><br>
+    <% end %>
   <% end %>
 <% end %>
 </fieldset>
 END;
+
+pg_close($dbconn);
 ?>
