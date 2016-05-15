@@ -2,6 +2,7 @@ require 'yaml'
 require 'pg'
 require 'fileutils'
 require 'erb'
+require 'active_support/core_ext/hash/slice'
 
 db_config = YAML.load_file('config/database.yml')
 puts "Load config..."
@@ -34,6 +35,19 @@ def get_columns(table)
                        FROM information_schema.columns
                        WHERE table_schema = 'public'
                        AND table_name   = '#{table}'")
+  foreign_keys = @conn.exec("SELECT
+                                  tc.constraint_name, tc.table_name, kcu.column_name, 
+                                  ccu.table_name AS foreign_table_name,
+                                  ccu.column_name AS foreign_column_name 
+                              FROM 
+                                  information_schema.table_constraints AS tc 
+                                  JOIN information_schema.key_column_usage AS kcu
+                                    ON tc.constraint_name = kcu.constraint_name
+                                  JOIN information_schema.constraint_column_usage AS ccu
+                                    ON ccu.constraint_name = tc.constraint_name
+                              WHERE constraint_type = 'FOREIGN KEY' AND tc.table_name='#{table}';")
+  foreign_keys = foreign_keys.map {|fk| {fk["column_name"] => fk.slice("foreign_table_name", "foreign_column_name") }}
+  foreign_keys = foreign_keys.reduce({}, :merge)
   # Supported data types :
   # "integer"
   # "boolean"
@@ -42,7 +56,11 @@ def get_columns(table)
   # "date"
   # "character varying"
   # "text"
-  columns.map {|c| {"column_name" => c["column_name"], "data_type" => @psql_html_data_types[c["data_type"]]}}
+  result = []
+  columns.each do |c| 
+    result.push({"column_name" => c["column_name"], "data_type" => @psql_html_data_types[c["data_type"]], "foreign_key" => foreign_keys[c["column_name"]]})
+  end
+  result
 end
 schema = {}
 @tables.each do |t|
