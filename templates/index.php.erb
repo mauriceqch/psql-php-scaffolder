@@ -11,11 +11,12 @@ if (!$result) {
 $arr = pg_fetch_all($result);
 
 echo '<table>
-        <tr>
+        <thead>
          <% @columns.each do |c| %>
-           <td><%= c["column_name"] %></td>
+           <th><%= c["column_name"] %></th>
          <% end %>
-        </tr>';
+        </thead>
+        <tbody>';
 
 foreach($arr as $array)
 {
@@ -25,6 +26,6 @@ foreach($arr as $array)
             <% end %>
           </tr>';
 }
-echo '</table>';
+echo '</tbody></table>';
 pg_close($dbconn);
 ?>
