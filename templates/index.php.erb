@@ -14,7 +14,11 @@ echo '<table>
         <thead>
          <% @columns.each do |c| %>
            <th><%= c["column_name"] %></th>
-         <% end %>
+         <% end %>';
+
+echo   '<th></th>
+        <th></th>
+        <th></th>
         </thead>
         <tbody>';
 
@@ -24,6 +28,9 @@ foreach($arr as $array)
             <% @columns.each do |c| %>
               <td>'.$array['<%= c["column_name"] %>'].'</td>
             <% end %>
+            <td><a href="<%= @table_name %>_show.php?id='.$array['id'].'">Afficher</a>
+            <td><a href="<%= @table_name %>_edit.php?id='.$array['id'].'">Modifier</a>
+            <td><a href="<%= @table_name %>_destroy.php?id='.$array['id'].'">Supprimer</a>
           </tr>';
 }
 echo '</tbody></table>';
