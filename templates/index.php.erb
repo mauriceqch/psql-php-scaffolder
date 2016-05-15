@@ -1,6 +1,6 @@
 <?php 
-
-require_once 'db-connect.php';
+if(!isset($disableconn))
+require_once('db-connect.php');
 
 $result = pg_query($dbconn, "SELECT * FROM <%= @table_name %>");
 if (!$result) {
@@ -18,7 +18,6 @@ echo '<table>
 
 echo   '<th></th>
         <th></th>
-        <th></th>
         </thead>
         <tbody>';
 
@@ -26,13 +25,23 @@ foreach($arr as $array)
 {
     echo '<tr>
             <% @columns.each do |c| %>
-              <td>'.$array['<%= c["column_name"] %>'].'</td>
+              <% if c["foreign_key"] %>
+                <td>';
+                  $_GET['id'] = $array['id'];
+                  $disableconn = true;
+                  include('<%= c["foreign_key"]["foreign_table_name"] %>_show.php');
+                  unset($disableconn);
+                echo '</td>
+              <% else %>
+                <td>'.$array['<%= c["column_name"] %>'].'</td>
+              <% end %>
             <% end %>
-            <td><a href="<%= @table_name %>_show.php?id='.$array['id'].'">Afficher</a>
             <td><a href="<%= @table_name %>_edit.php?id='.$array['id'].'">Modifier</a>
             <td><a href="<%= @table_name %>_destroy.php?id='.$array['id'].'">Supprimer</a>
           </tr>';
 }
 echo '</tbody></table>';
+
+if(!isset($disableconn))
 pg_close($dbconn);
 ?>

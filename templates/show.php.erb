@@ -1,15 +1,17 @@
 <?php 
 
 if (isset($_GET['id'])) {
+
+  if(!isset($disableconn))
   require_once 'db-connect.php';
 
-  $result = pg_query($dbconn, "SELECT * FROM <%= @table_name %> WHERE id=".$_GET['id'].";");
-  if (!$result) {
+  $<%= @table_name %>_query = pg_query($dbconn, "SELECT * FROM <%= @table_name %> WHERE id=".$_GET['id'].";");
+  if (!$<%= @table_name %>_query) {
       echo "An error occurred.\n";
       exit;
   }
 
-  $arr = pg_fetch_all($result);
+  $<%= @table_name %>_object = pg_fetch_all($<%= @table_name %>_query);
 
   echo '<table>
           <tr>
@@ -18,7 +20,7 @@ if (isset($_GET['id'])) {
            <% end %>
           </tr>';
 
-  foreach($arr as $array)
+  foreach($<%= @table_name %>_object as $array)
   {
       echo '<tr>
               <% @columns.each do |c| %>
@@ -27,8 +29,9 @@ if (isset($_GET['id'])) {
             </tr>';
   }
   echo '</table>';
+
+  if(!isset($disableconn))
   pg_close($dbconn);
-  echo '<a href="./<%= @table_name %>_destroy.php?id='. $_GET['id'] . '">Supprimer</a>';
 }
 ?>
 
