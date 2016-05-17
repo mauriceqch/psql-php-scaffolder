@@ -5,7 +5,7 @@ if (isset($_GET['id'])) {
 
   $result = pg_delete($dbconn, "<%= @table_name %>", array("id" => $_GET['id']));
   if (!$result) {
-      echo "An error occurred.\n";
+      echo pg_last_error($dbconn) . " <br />";
   } else {
       echo "Deleted successfully.\n";
   }
