@@ -2,7 +2,11 @@
 if(!isset($disableconn))
 require_once('db-connect.php');
 
-$result = pg_query($dbconn, "SELECT * FROM <%= @table_name %>");
+if(isset($_GET['id'])) {
+  $result = pg_query($dbconn, "SELECT * FROM <%= @table_name %> WHERE id =".$_GET['id'].";");
+} else {
+  $result = pg_query($dbconn, "SELECT * FROM <%= @table_name %>");
+}
 if (!$result) {
     echo "An error occurred.\n";
     exit;
@@ -27,7 +31,8 @@ echo   '<th></th>
 foreach($<%= @table_name %>_arr as $<%= @table_name %>_element)
 {
     echo '<tr>
-            <% @columns.each do |c| %>
+      <td><a href="<%= @table_name %>_index.php?id='.$<%= @table_name %>_element['id'].'">'.$<%= @table_name %>_element['id'].'</a></td>
+            <% (@columns.select{|c| c["column_name"] != "id" }).each do |c| %>
               <% if c["foreign_key"] %>
                 <td>';
                   $_GET['id'] = $<%= @table_name %>_element['<%= c["column_name"] %>'];

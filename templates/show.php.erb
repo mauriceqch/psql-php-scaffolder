@@ -23,7 +23,8 @@ if (isset($_GET['id'])) {
   foreach($<%= @table_name %>_object as $<%= @table_name %>_element)
   {
       echo '<tr>
-              <% @columns.each do |c| %>
+      <td><a href="<%= @table_name %>_index.php?id='.$<%= @table_name %>_element['id'].'">'.$<%= @table_name %>_element['id'].'</a></td>
+              <% (@columns.select{|c| c["column_name"] != "id"}).each do |c| %>
                 <td>'.$<%= @table_name %>_element['<%= c["column_name"] %>'].'</td>
               <% end %>
             </tr>';
