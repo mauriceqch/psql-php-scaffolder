@@ -25,7 +25,11 @@ if (isset($_GET['id'])) {
       echo '<tr>
       <td><a href="<%= @table_name %>_index.php?id='.$<%= @table_name %>_element['id'].'">'.$<%= @table_name %>_element['id'].'</a></td>
               <% (@columns.select{|c| c["column_name"] != "id"}).each do |c| %>
-                <td>'.$<%= @table_name %>_element['<%= c["column_name"] %>'].'</td>
+                <% if c["foreign_key"] %>
+                  <td><a href="<%= c["foreign_key"]["foreign_table_name"] %>_index.php?id='.$<%= @table_name %>_element['<%= c["column_name"] %>'].'">'.$<%= @table_name %>_element['<%= c["column_name"] %>'].'</a></td>
+                <% else %>
+                  <td>'.$<%= @table_name %>_element['<%= c["column_name"] %>'].'</td>
+                <% end %>
               <% end %>
             </tr>';
   }
@@ -35,4 +39,3 @@ if (isset($_GET['id'])) {
   pg_close($dbconn);
 }
 ?>
-
