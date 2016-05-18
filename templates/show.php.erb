@@ -14,11 +14,11 @@ if (isset($_GET['id'])) {
   $<%= @table_name %>_object = pg_fetch_all($<%= @table_name %>_query);
 
   echo '<table border="1" width="100%">
-          <tr>
+          <thead>
            <% @columns.each do |c| %>
-             <td><%= c["column_name"] %></td>
+             <th><%= c["column_name"] %></th>
            <% end %>
-          </tr>';
+           </thead><tbody>';
 
   foreach($<%= @table_name %>_object as $<%= @table_name %>_element)
   {
@@ -33,7 +33,7 @@ if (isset($_GET['id'])) {
               <% end %>
             </tr>';
   }
-  echo '</table>';
+  echo '</tbody></table>';
 
   if(!isset($disableconn))
   pg_close($dbconn);
