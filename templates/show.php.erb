@@ -20,11 +20,11 @@ if (isset($_GET['id'])) {
            <% end %>
           </tr>';
 
-  foreach($<%= @table_name %>_object as $array)
+  foreach($<%= @table_name %>_object as $<%= @table_name %>_element)
   {
       echo '<tr>
               <% @columns.each do |c| %>
-                <td>'.$array['<%= c["column_name"] %>'].'</td>
+                <td>'.$<%= @table_name %>_element['<%= c["column_name"] %>'].'</td>
               <% end %>
             </tr>';
   }

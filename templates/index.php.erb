@@ -8,7 +8,7 @@ if (!$result) {
     exit;
 }
 
-$arr = pg_fetch_all($result);
+$<%= @table_name %>_arr = pg_fetch_all($result);
 
 echo '<table>
         <thead>
@@ -24,24 +24,24 @@ echo   '<th></th>
         </thead>
         <tbody>';
 
-foreach($arr as $array)
+foreach($<%= @table_name %>_arr as $<%= @table_name %>_element)
 {
     echo '<tr>
             <% @columns.each do |c| %>
               <% if c["foreign_key"] %>
                 <td>';
-                  $_GET['id'] = $array['id'];
+                  $_GET['id'] = $<%= @table_name %>_element['<%= c["column_name"] %>'];
                   $disableconn = true;
                   include('<%= c["foreign_key"]["foreign_table_name"] %>_show.php');
                   unset($disableconn);
                 echo '</td>
               <% else %>
-                <td>'.$array['<%= c["column_name"] %>'].'</td>
+                <td>'.$<%= @table_name %>_element['<%= c["column_name"] %>'].'</td>
               <% end %>
             <% end %>
 <% @local_reverse_fks.each do |rfk| %>
 <td>';
-  $referencing_<%= rfk["referencing_table_name"] %>_ids = pg_fetch_all(pg_query($dbconn, "SELECT id FROM <%= rfk["referencing_table_name"] %> WHERE <%= rfk["referencing_table_name"] + "." + rfk["referencing_column_name"] %> = ".$array['<%= rfk["referenced_column_name"] %>'].";"));
+  $referencing_<%= rfk["referencing_table_name"] %>_ids = pg_fetch_all(pg_query($dbconn, "SELECT id FROM <%= rfk["referencing_table_name"] %> WHERE <%= rfk["referencing_table_name"] + "." + rfk["referencing_column_name"] %> = ".$<%= @table_name %>_element['<%= rfk["referenced_column_name"] %>'].";"));
 $disableconn = true;
 foreach($referencing_<%= rfk["referencing_table_name"] %>_ids as $o) 
 {
@@ -51,8 +51,8 @@ foreach($referencing_<%= rfk["referencing_table_name"] %>_ids as $o)
 unset($disableconn);
 echo '</td>
 <% end %>
-            <td><a href="<%= @table_name %>_edit.php?id='.$array['id'].'">Modifier</a>
-            <td><a href="<%= @table_name %>_destroy.php?id='.$array['id'].'">Supprimer</a>
+            <td><a href="<%= @table_name %>_edit.php?id='.$<%= @table_name %>_element['id'].'">Modifier</a>
+            <td><a href="<%= @table_name %>_destroy.php?id='.$<%= @table_name %>_element['id'].'">Supprimer</a>
           </tr>';
 }
 echo '</tbody></table>';
