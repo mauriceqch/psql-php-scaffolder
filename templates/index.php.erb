@@ -10,7 +10,7 @@ if (!$result) {
 
 $<%= @table_name %>_arr = pg_fetch_all($result);
 
-echo '<table>
+echo '<table border="2" width="100%">
         <thead>
          <% @columns.each do |c| %>
            <th><%= c["column_name"] %></th>

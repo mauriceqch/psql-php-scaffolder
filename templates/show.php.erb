@@ -13,7 +13,7 @@ if (isset($_GET['id'])) {
 
   $<%= @table_name %>_object = pg_fetch_all($<%= @table_name %>_query);
 
-  echo '<table>
+  echo '<table border="1" width="100%">
           <tr>
            <% @columns.each do |c| %>
              <td><%= c["column_name"] %></td>
